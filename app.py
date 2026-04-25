@@ -1,23 +1,32 @@
-﻿import streamlit as st
+import streamlit as st
 import pickle
 import numpy as np
 
-# تحميل الموديل - تأكدي إن الملف ده موجود جنبه على الديسكتوب
-model = pickle.load(open('diabetes_model (7).pkl', 'rb'))
+st.title("Diabetes Prediction App 🩺")
 
-st.title("نظام التنبؤ بالسكري")
+# دالة لتحميل الموديل بأمان
+def load_model():
+    try:
+        with open('diabetes_model (7).pkl', 'rb') as f:
+            return pickle.load(f)
+    except Exception as e:
+        st.error(f"خطأ في تحميل الموديل: {e}")
+        return None
 
-# خانات إدخال البيانات
-glucose = st.number_input("نسبة الجلوكوز", value=100)
-bmi = st.number_input("مؤشر كتلة الجسم BMI", value=25.0)
-age = st.number_input("العمر", value=30)
+model = load_model()
 
-if st.button("تحليل النتيجة"):
-    # ترتيب البيانات لازم يكون زي ما الموديل اتدرب عليه
-    features = np.array([[glucose, bmi, age]])
-    prediction = model.predict(features)
-    
-    if prediction[0] == 1:
-        st.error("النتيجة إيجابية")
+# مدخلات البيانات
+glucose = st.number_input("Glucose Level", value=100)
+bmi = st.number_input("BMI", value=25.0)
+age = st.number_input("Age", value=30)
+
+if st.button("Predict"):
+    if model:
+        features = np.array([[glucose, bmi, age]])
+        prediction = model.predict(features)
+        if prediction[0] == 1:
+            st.error("النتيجة: إيجابي (Positive)")
+        else:
+            st.success("النتيجة: سلبي (Negative)")
     else:
-        st.success("النتيجة سلبية")
+        st.warning("لا يمكن التوقع لأن الموديل لم يتم تحميله.")

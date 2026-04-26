@@ -1,43 +1,32 @@
-
-  import streamlit as st
+import streamlit as st
 import pickle
 import numpy as np
 import os
 
-# 1. إعداد المسار (تأكدي إنها شرطتين __ قبل وبعد كلمة file)
+# السطر ده هو اللي كان عامل المشكلة (لازم شرطتين __ قبل وبعد file)
 base_path = os.path.dirname(_file_)
 model_path = os.path.join(base_path, 'diabetes_model.sav')
 
-# تحميل الموديل
 try:
     with open(model_path, 'rb') as f:
         model = pickle.load(f)
 except FileNotFoundError:
-    st.error("ملف diabetes_model.sav مش موجود في الفولدر! ارفعيه بجانب ملف app.py")
+    st.error("ملف diabetes_model.sav مش موجود! ارفعيه على GitHub في نفس الفولدر.")
     st.stop()
 
-st.title("نظام التنبؤ بمرض السكري - Eng Elina")
+st.title("نظام التنبؤ بالسكري - Eng Elina")
 
-# 2. إنشاء الـ 17 خانة (مقسمة لـ 3 أعمدة عشان الشكل)
+# إنشاء 17 خانة إجبارية عشان الموديل يشتغل
 inputs = []
 cols = st.columns(3)
-
-# مسميات الأعمدة بناءً على مشروعك (تقدري تعدلي الأسامي براحتك)
 for i in range(1, 18):
     with cols[(i-1)%3]:
-        val = st.number_input(f"الميزة (Feature) {i}", value=0.0, key=f"input_{i}")
+        val = st.number_input(f"Feature {i}", value=0.0, key=f"in_{i}")
         inputs.append(val)
 
-# 3. تنفيذ التنبؤ
-if st.button("Predict (تنبؤ)"):
-    # تحويل لـ مصفوفة
-    final_features = np.array([inputs])
-    
-    # التنبؤ
-    prediction = model.predict(final_features)
-    
-    st.divider()
+if st.button("Predict"):
+    prediction = model.predict(np.array([inputs]))
     if prediction[0] == 1:
-        st.error("### النتيجة: الشخص مصاب بالسكري")
+        st.error("مصاب")
     else:
-        st.success("### النتيجة: الشخص سليم")
+        st.success("سليم")
